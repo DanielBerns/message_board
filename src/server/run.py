@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from app import create_app
+from application import create_app
 
 # Create the Flask app instance using the app factory
 # It will look for FLASK_CONFIG in environment variables, defaulting to 'development'
