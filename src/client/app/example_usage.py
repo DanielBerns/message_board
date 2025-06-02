@@ -6,7 +6,7 @@ from client import MessageBoardClient
 from getpass import getpass # For securely getting password input
 
 def main():
-    client = MessageBoardClient(base_url="http://127.0.0.1:5000") # Adjust if server runs elsewhere
+    client = MessageBoardClient(base_url="https://danielwaltherberns.pythonanywhere.com/") # Adjust if server runs elsewhere
 
     print("Message Board Client CLI")
     print("------------------------")

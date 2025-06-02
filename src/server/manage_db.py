@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from app import create_app, db
-from app.models import User
-from app.extensions import bcrypt # For password hashing
+from application import create_app, db
+from application.models import User
+from application.extensions import bcrypt # For password hashing
 
 # Create a minimal app context for DB operations
 # This allows us to work with the database outside of a running Flask request
