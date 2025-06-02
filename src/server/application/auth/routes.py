@@ -2,8 +2,8 @@
 # Contains routes related to authentication, like login.
 from flask import request, jsonify
 from . import auth_bp
-from app.models import User
-from app.extensions import bcrypt, db
+from application.models import User
+from application.extensions import bcrypt, db
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
 @auth_bp.route('/login', methods=['POST'])

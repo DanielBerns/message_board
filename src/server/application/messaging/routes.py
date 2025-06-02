@@ -2,8 +2,8 @@
 # Contains routes for sending, receiving, and managing messages.
 from flask import request, jsonify
 from . import messaging_bp
-from app.models import User, Message, MessageRecipient, Tag, db # Removed MessageTag as it's an association table
-from app.extensions import db
+from application.models import User, Message, MessageRecipient, Tag, db
+from application.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity, current_user
 from sqlalchemy.orm import aliased
 from sqlalchemy import or_

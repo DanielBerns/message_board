@@ -4,8 +4,8 @@ from flask import jsonify
 from . import admin_bp
 from flask_jwt_extended import jwt_required # current_user will be used via helper
 # Import the updated helper function from messaging.routes or a common utils module
-from app.messaging.routes import is_admin_user_from_current_user_obj
-from app.models import User # Required for isinstance check in the helper if not already imported by it
+from application.messaging.routes import is_admin_user_from_current_user_obj
+from application.models import User # Required for isinstance check in the helper if not already imported by it
 
 @admin_bp.route('/status', methods=['GET'])
 @jwt_required()
