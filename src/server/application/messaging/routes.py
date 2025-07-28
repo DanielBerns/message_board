@@ -352,3 +352,33 @@ def delete_message(message_id):
         return jsonify({"msg": "Failed to delete message", "error": str(e)}), 500
 
 
+@messaging_bp.route('/messages/delete_all', methods=['POST'])
+@jwt_required()
+def delete_all_messages():
+    """
+    Deletes all messages if the user is an admin and provides a specific confirmation message.
+    Expects JSON: {"confirmation": "delete all messages"}
+    """
+    if not is_admin_user_from_current_user_obj():
+        return jsonify({"msg": "Admin access required"}), 403
+
+    data = request.get_json()
+    confirmation_phrase = "delete all messages"
+
+    if not data or data.get('confirmation') != confirmation_phrase:
+        return jsonify({"msg": f"Missing or incorrect confirmation phrase. Please provide: '{confirmation_phrase}'"}), 400
+
+    try:
+        # Mass delete all messages
+        # Because of foreign key constraints, we delete from MessageRecipient first.
+        num_deleted_recipients = db.session.query(MessageRecipient).delete()
+        num_deleted_messages = db.session.query(Message).delete()
+        db.session.commit()
+        return jsonify({
+            "msg": "All messages and recipient links have been deleted successfully.",
+            "deleted_messages_count": num_deleted_messages,
+            "deleted_recipient_links_count": num_deleted_recipients
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Failed to delete all messages", "error": str(e)}), 500

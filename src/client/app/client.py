@@ -141,6 +141,15 @@ class MessageBoardClient:
         response = requests.delete(url, headers=self._make_headers())
         return self._handle_response(response)
 
+    # --- Massive Message Deletion Method ---
+    def delete_all_messages(self, confirmation_phrase):
+        """Sends a request to delete all messages."""
+        if not self.token: return {"error": "Not logged in"}
+        url = f"{self.base_url}/api/messages/delete_all"
+        payload = {"confirmation": confirmation_phrase}
+        response = requests.post(url, json=payload, headers=self._make_headers())
+        return self._handle_response(response)
+
     # --- Admin Method ---
     def get_server_status(self): # Assumes admin is logged in
         if not self.token: return {"error": "Not logged in"}

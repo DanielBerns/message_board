@@ -1,5 +1,5 @@
-# client_app/example_usage.py
-# Example usage of the MessageBoardClient.
+# client_app/him.py
+# Human Interface of MessageBoardClient
 # Ensure the server is running before executing this.
 # You'll need to create users using 'manage_db.py' first.
 from client import MessageBoardClient
@@ -8,7 +8,7 @@ from getpass import getpass # For securely getting password input
 def main():
     client = MessageBoardClient(base_url="https://danielwaltherberns.pythonanywhere.com/") # Adjust if server runs elsewhere
 
-    print("Message Board Client CLI")
+    print("Message Board Human Interface")
     print("------------------------")
 
     while True:
@@ -33,7 +33,8 @@ def main():
         print("8. Unsubscribe from Tags")
         print("9. Delete a Message")
         print("10. Get Server Status (Admin Only)")
-        print("11. Logout")
+        print("11. DELETE ALL MESSAGES (Admin Only)")
+        print("12. Logout")
         print("0. Exit")
 
         _input = input("Enter your choice: ")
@@ -64,7 +65,14 @@ def main():
                 case 6:
                     tags_str = input("Filter by tags (comma-separated, optional, press Enter for subscribed/all): ")
                     filter_tags = [t.strip() for t in tags_str.split(',')] if tags_str else None
-                    print(client.get_public_messages(filter_tags=filter_tags))
+                    public_messages = client.get_public_messages(filter_tags=filter_tags)
+                    for number, pm in enumerate(public_messages):
+                        print(f"{number}.")
+                        if isinstance(pm, dict):
+                            for key, value in pm.items():
+                               print(f"    {key}: {value}")
+                        else:
+                            print(pm)
                 case 7:
                     tags_str = input("Tags to subscribe to (comma-separated): ")
                     tags = [t.strip() for t in tags_str.split(',')]
@@ -79,6 +87,12 @@ def main():
                 case 10:
                     print(client.get_server_status())
                 case 11:
+                    confirmation = input("This is an irreversible action. To confirm, type 'delete all messages': ")
+                    if confirmation == "delete all messages":
+                        print(client.delete_all_messages(confirmation))
+                    else:
+                        print("Confirmation incorrect. Action aborted.")
+                case 12:
                     client.logout()
                     username = None # Clear username after logout
                 case 0:
