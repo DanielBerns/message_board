@@ -2,7 +2,7 @@
 # Contains routes for sending, receiving, and managing messages.
 from flask import request, jsonify
 from . import messaging_bp
-from application.models import User, Message, MessageRecipient, Tag, db
+from application.models import User, Message, MessageRecipient, Tag, db, message_tags_association
 from application.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity, current_user
 from sqlalchemy.orm import aliased
@@ -351,7 +351,6 @@ def delete_message(message_id):
         db.session.rollback()
         return jsonify({"msg": "Failed to delete message", "error": str(e)}), 500
 
-
 @messaging_bp.route('/messages/delete_all', methods=['POST'])
 @jwt_required()
 def delete_all_messages():
@@ -370,12 +369,13 @@ def delete_all_messages():
 
     try:
         # Mass delete all messages
-        # Because of foreign key constraints, we delete from MessageRecipient first.
+        # Because of foreign key constraints, we delete from the association tables and MessageRecipient first.
+        db.session.execute(message_tags_association.delete())
         num_deleted_recipients = db.session.query(MessageRecipient).delete()
         num_deleted_messages = db.session.query(Message).delete()
         db.session.commit()
         return jsonify({
-            "msg": "All messages and recipient links have been deleted successfully.",
+            "msg": "All messages, recipient links, and message-tag associations have been deleted successfully.",
             "deleted_messages_count": num_deleted_messages,
             "deleted_recipient_links_count": num_deleted_recipients
         }), 200
