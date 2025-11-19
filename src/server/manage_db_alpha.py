@@ -3,7 +3,6 @@
 # 1. Initializing the database schema.
 # 2. Creating the initial admin user.
 # 3. Adding new client users.
-# 4. Resetting user passwords.
 import os
 from getpass import getpass
 from dotenv import load_dotenv
@@ -44,7 +43,7 @@ def create_admin():
 
         hashed_password = bcrypt.generate_password_hash(admin_password).decode('utf-8')
         admin_user = User(username=admin_username, password_hash=hashed_password, is_admin=True)
-
+        
         try:
             db.session.add(admin_user)
             db.session.commit()
@@ -67,11 +66,11 @@ def add_client_user():
         if client_password != confirm_password:
             print("Passwords do not match. Client user creation aborted.")
             return
-
+        
         hashed_password = bcrypt.generate_password_hash(client_password).decode('utf-8')
         # Client users are not admins by default
         client_user = User(username=client_username, password_hash=hashed_password, is_admin=False)
-
+        
         try:
             db.session.add(client_user)
             db.session.commit()
@@ -79,33 +78,6 @@ def add_client_user():
         except Exception as e:
             db.session.rollback()
             print(f"Error creating client user: {e}")
-
-def reset_user_password():
-    """Resets the password for an existing user (admin or client)."""
-    with app.app_context():
-        username = input("Enter username to reset password for: ")
-        user = User.query.filter_by(username=username).first()
-
-        if not user:
-            print(f"User '{username}' not found.")
-            return
-
-        new_password = getpass("Enter new password: ")
-        confirm_password = getpass("Confirm new password: ")
-
-        if new_password != confirm_password:
-            print("Passwords do not match. Password reset aborted.")
-            return
-
-        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
-        user.password_hash = hashed_password
-
-        try:
-            db.session.commit()
-            print(f"Password for user '{username}' reset successfully.")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error resetting password: {e}")
 
 if __name__ == '__main__':
     print("Database Management Script")
@@ -115,11 +87,10 @@ if __name__ == '__main__':
         print("1. Initialize Database (Create Tables)")
         print("2. Create Admin User")
         print("3. Add Client User")
-        print("4. Reset User Password")
-        print("5. Exit")
-
+        print("4. Exit")
+        
         choice = input("Enter your choice: ")
-
+        
         if choice == '1':
             init_db()
         elif choice == '2':
@@ -127,9 +98,8 @@ if __name__ == '__main__':
         elif choice == '3':
             add_client_user()
         elif choice == '4':
-            reset_user_password()
-        elif choice == '5':
             print("Exiting.")
             break
         else:
             print("Invalid choice. Please try again.")
+
