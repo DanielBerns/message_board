@@ -36,7 +36,6 @@ def main():
         print("11. DELETE ALL MESSAGES (Admin Only)")
         print("12. Logout")
         print("0. Exit")
-
         _input = input("Enter your choice: ")
         try:
             choice = int(_input)
