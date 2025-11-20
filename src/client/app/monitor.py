@@ -28,7 +28,7 @@ def schedule_shutdown() -> str:
     """
     result = ""
     # 1. specific command required by the user
-    command_to_run = "/usr/bin/systemctl poweroff > /tmp/shutdown_debug.log 2>&1"
+    command_to_run = "sudo /usr/bin/systemctl poweroff"
 
     # 2. Verify 'at' is installed on the system
     if not shutil.which("at"):
