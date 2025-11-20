@@ -17,7 +17,7 @@ def schedule_shutdown() -> str:
     Schedules a system shutdown using 'at' and 'systemctl'.
     The shutdown is scheduled for 1 minute from the current time.
     """
-    result = False
+    result = ""
     # 1. specific command required by the user
     command_to_run = "systemctl poweroff"
 
@@ -39,7 +39,7 @@ def schedule_shutdown() -> str:
 
         # 4. Success feedback
         # 'at' usually prints job information to stderr, even on success.
-        result = f"success: {process.stderr.decode('utf-8').strip()}")
+        logger.info(f"success: {process.stderr.decode('utf-8').strip()}")
     except subprocess.CalledProcessError as e:
         # Handle errors (e.g., user is not root, or syntax error)
         logger.error(f"Failed to schedule shutdown. Error:\n{e.stderr.decode('utf-8')}")
@@ -61,7 +61,7 @@ def check_private_messages(username: str, password: str) -> None:
             else:
                 logger.error("Invalid username and password")
             if success:
-                private_messages = client.get_private_messages())
+                private_messages = client.get_private_messages()
                 for a_message in private_messages:
                     sender = a_message.get('sender', '!')
                     content = a_message.get('content', '!' )
