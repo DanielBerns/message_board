@@ -11,6 +11,14 @@ import sys
 import shutil
 import argparse
 
+# Configure logging to write to a file
+logging.basicConfig(
+    level=logging.INFO,  # Adjusted logging level to INFO
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='monitor.log', # Log output to this text file
+    filemode='a' # Append mode
+)
+
 logger = logging.getLogger()
 
 def schedule_shutdown() -> str:
@@ -24,8 +32,9 @@ def schedule_shutdown() -> str:
 
     # 2. Verify 'at' is installed on the system
     if not shutil.which("at"):
-        logger.error("Error: The 'at' command is not found. Please install it (e.g., sudo apt install at).")
-        return
+        result = "Error: The 'at' command is not found. Please install it (e.g., sudo apt install at)."
+        logger.error(result)
+        return result
 
     try:
         # 3. Execute the command
@@ -40,12 +49,15 @@ def schedule_shutdown() -> str:
 
         # 4. Success feedback
         # 'at' usually prints job information to stderr, even on success.
-        logger.info(f"success: {process.stderr.decode('utf-8').strip()}")
+        result = f"Success: {process.stderr.decode('utf-8').strip()}"
+        logger.info(result)
     except subprocess.CalledProcessError as e:
         # Handle errors (e.g., user is not root, or syntax error)
-        logger.error(f"Failed to schedule shutdown. Error:\n{e.stderr.decode('utf-8')}")
+        result = f"Error: failed to schedule shutdown. \n{e.stderr.decode('utf-8')}"
+        logger.error(result)
     except PermissionError:
-        logger.error("Failed to schedule shutdown. You need root privileges to schedule this command.")
+        result = "Error: failed to schedule shutdown. You need sudo privileges to schedule this command."
+        logger.error(result)
 
     return result
 
