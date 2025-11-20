@@ -63,7 +63,7 @@ def check_private_messages(username: str, password: str) -> None:
             if success:
                 private_messages = client.get_private_messages()
                 for a_message in private_messages:
-                    sender = a_message.get('sender', '!')
+                    sender = a_message.get('sender_username', '!')
                     content = a_message.get('content', '!' )
                     if sender == 'daniel':
                         if content == 'shutdown':
