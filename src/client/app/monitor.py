@@ -51,7 +51,7 @@ def schedule_shutdown() -> str:
 def check_private_messages(username: str, password: str) -> None:
     client = MessageBoardClient(base_url="https://danielwaltherberns.pythonanywhere.com/") # Adjust if server runs elsewhere
 
-    logger.info("Message Board Automated Interface start")
+    logger.info("Automated Message Board Monitor start")
 
     success = False
     if not client.token:
@@ -73,6 +73,17 @@ def check_private_messages(username: str, password: str) -> None:
     else:
         logger.error("An unexpected error occurred: not null client token")
 
-    logger.info("Message Board Automated Interface done")
+    logger.info("Automated Message Board Monitor done")
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Automated Message Board Monitor")
+    parser.add_argument("username", help="Username for the message board")
+    parser.add_argument("password", help="Password for the message board")
+
+    args = parser.parse_args()
+
+    check_private_messages(args.username, args.password)
+
+if __name__ == "__main__":
+    main()
