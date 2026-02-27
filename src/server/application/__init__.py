@@ -5,7 +5,7 @@ import os
 from flask import Flask
 from .config import config
 from .extensions import db, bcrypt, jwt, migrate
-from .models import User # Ensure models are imported
+from .models import User, TokenBlocklist
 
 def create_app(config_name=None):
     """
@@ -49,6 +49,13 @@ def create_app(config_name=None):
             # Log error or handle case where identity_str is not a valid int string
             return None
         return None
+
+    # Check if a token is in the blocklist
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+        jti = jwt_payload["jti"]
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+        return token is not None
 
     return app
 

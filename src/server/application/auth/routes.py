@@ -2,7 +2,7 @@
 # Contains routes related to authentication, like login.
 from flask import request, jsonify
 from . import auth_bp
-from application.models import User
+from application.models import User, TokenBlocklist
 from application.extensions import bcrypt, db
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
@@ -45,13 +45,9 @@ def refresh():
 @jwt_required()
 def logout():
     """
-    Logs out a user. Currently, this is a conceptual logout.
-    The client should discard the token. True server-side blacklisting is not implemented.
+    Logs out a user and adds their token to the blocklist.
     """
-    # To implement true logout with JWT, you need a token blacklist.
-    # Example:
-    # jti = get_jwt()['jti']
-    # add_to_blacklist(jti) # Your function to store jti in a blacklist (e.g., Redis, DB)
-    return jsonify({"msg": "Logout successful. Please discard your token."}), 200
-
-
+    jti = get_jwt()['jti']
+    db.session.add(TokenBlocklist(jti=jti))
+    db.session.commit()
+    return jsonify({"msg": "Logout successful."}), 200

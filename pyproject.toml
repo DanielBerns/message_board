@@ -14,3 +14,10 @@ dependencies = [
     "requests>=2.32.5",
     "sqlalchemy>=2.0.41",
 ]
+
+tool.uv.package = true
+
+[project.scripts]
+board-server = "src.server.run:main"
+board-client = "src.client.app.him:main"
+board-monitor = "src.client.app.monitor:main"

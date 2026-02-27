@@ -1,16 +1,23 @@
-# client_app/him.py
 # Human Interface of MessageBoardClient
 # Ensure the server is running before executing this.
 # You'll need to create users using 'manage_db.py' first.
+
+import os
+import logging
 from client import MessageBoardClient
-from getpass import getpass # For securely getting password input
+from getpass import getpass
+
+# Set up simple console logging for human interface
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def main():
-    client = MessageBoardClient(base_url="https://danielwaltherberns.pythonanywhere.com/") # Adjust if server runs elsewhere
+    base_url = os.environ.get("BOARD_BASE_URL", "http://127.0.0.1:5000")
+    client = MessageBoardClient(base_url=base_url)
 
     print("Message Board Human Interface")
     print("------------------------")
 
+    # ... (Keep the rest of the file exactly the same from `while True:` downwards)
     while True:
         if not client.token:
             print("\nYou are not logged in.")
@@ -18,8 +25,7 @@ def main():
             password = getpass("Enter password: ")
             success, _ = client.login(username, password)
             if not success:
-                continue # Try login again or exit
-        
+                continue
         current_username = username # Store username for display after login
         print(f"\nLogged in as: {current_username}")
         print("\nAvailable actions:")

@@ -1,15 +1,12 @@
-# client_app/him.py
 # Automated Interface of MessageBoardClient
 # Ensure the server is running before executing this.
 # You'll need to create users using 'manage_db.py' first.
-from client import MessageBoardClient
 import os
-
+import time
 import logging
 import subprocess
-import sys
 import shutil
-import argparse
+from client import MessageBoardClient
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -18,7 +15,6 @@ logging.basicConfig(
     filename='monitor.log', # Log output to this text file
     filemode='a' # Append mode
 )
-
 logger = logging.getLogger()
 
 def schedule_shutdown() -> str:
@@ -61,42 +57,44 @@ def schedule_shutdown() -> str:
 
     return result
 
-def check_private_messages(username: str, password: str) -> None:
-    client = MessageBoardClient(base_url="https://danielwaltherberns.pythonanywhere.com/") # Adjust if server runs elsewhere
-
-    logger.info("Automated Message Board Monitor start")
-
-    success = False
-    if not client.token:
-        try:
-            if username and password:
-                success, _ = client.login(username, password)
-            else:
-                logger.error("Invalid username and password")
-            if success:
-                private_messages = client.get_private_messages()
-                for a_message in private_messages:
-                    sender = a_message.get('sender_username', '!')
-                    content = a_message.get('content', '!' )
-                    if sender == 'daniel':
-                        if content == 'shutdown':
-                            schedule_shutdown()
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
-    else:
-        logger.error("An unexpected error occurred: not null client token")
-
-    logger.info("Automated Message Board Monitor done")
-
 
 def main():
-    parser = argparse.ArgumentParser(description="Automated Message Board Monitor")
-    parser.add_argument("username", help="Username for the message board")
-    parser.add_argument("password", help="Password for the message board")
+    username = os.environ.get("BOARD_USERNAME")
+    password = os.environ.get("BOARD_PASSWORD")
+    base_url = os.environ.get("BOARD_BASE_URL", "http://127.0.0.1:5000")
 
-    args = parser.parse_args()
+    if not username or not password:
+        logger.error("BOARD_USERNAME and BOARD_PASSWORD environment variables must be set.")
+        return
 
-    check_private_messages(args.username, args.password)
+    client = MessageBoardClient(base_url=base_url)
+    logger.info("Automated Message Board Monitor start")
+
+    while True:
+        try:
+            if not client.token:
+                success, _ = client.login(username, password)
+                if not success:
+                    logger.error("Failed to login to monitor.")
+                    time.sleep(60)
+                    continue
+
+            private_messages = client.get_private_messages()
+            if isinstance(private_messages, list):
+                for a_message in private_messages:
+                    sender = a_message.get('sender_username', '')
+                    content = a_message.get('content', '')
+                    if sender == 'daniel' and content == 'shutdown':
+                        logger.warning("Shutdown command received!")
+                        schedule_shutdown()
+                        # Optional: delete the message here so it doesn't loop
+
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
+
+        # Wait 60 seconds before checking again
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
+
