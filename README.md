@@ -26,9 +26,6 @@ The ecosystem consists of three main components:
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```markdown
-# Message Board Application
-
-A full-stack Python messaging ecosystem built with Flask and RESTful APIs. This project features a central server and two distinct clients for human interaction and automated system monitoring.
 
 ## System Overview
 

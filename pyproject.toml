@@ -15,11 +15,3 @@ dependencies = [
     "sqlalchemy>=2.0.41",
 ]
 
-[build-system]
-requires = ["uv_build>=0.9.9,<0.10.0"]
-build-backend = "uv_build"
-
-[project.scripts]
-board-server = "src.server.run:main"
-board-client = "src.client.app.him:main"
-board-monitor = "src.client.app.monitor:main"

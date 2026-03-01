@@ -1,5 +1,5 @@
 from pathlib import Path
-import uuid
+import secrets
 
 def get_root(base: str, identifier: str, version: str) -> Path:
     _path = Path('~', base, identifier, version).expanduser()
@@ -20,18 +20,22 @@ def get_container(root: Path, identifier: str) -> Path:
 def get_resource(container: Path, identifier: str, suffix: str) -> Path:
     return Path(container, identifier).with_suffix(suffix)
 
-def dotenv(root: Path) -> Path:
+def get_dotenv_identifier(root: Path) -> Path:
     dotenv_identifier = Path(root, '.env')
+    if dotenv_identifier.exists():
+        return dotenv_identifier
     with open(dotenv_identifier, 'w') as target:
         # Default key - value pairs
         key = "SECRET_KEY"
-        value = uuid.uuid4().hex
+        value = secrets.token_hex(32)
         target.write(f'{key:s}="{value:s}"\n')
 
         key = "JWT_SECRET_KEY"
-        value = uuid.uuid4().hex
+        value = secrets.token_hex(32)
         target.write(f'{key:s}="{value:s}"\n')
 
         key = "LOGGING_LEVEL"
         value = "DEBUG"
         target.write(f'{key:s}="{value:s}"\n')
+
+    return dotenv_identifier

@@ -3,13 +3,16 @@
 # (e.g., development, testing, production).
 import os
 from datetime import timedelta
-
-from .storage import info_root, get_resource
+from dotenv import load_dotenv
+from .storage import info_root, get_resource, get_dotenv_identifier
 
 # Base directory of the application
-IDENTIFIER = "messages_board"
-VERSION = "alpha"
-INFO_ROOT = info_root(IDENTIFIER, VERSION)
+MAJOR_IDENTIFIER = os.get_env("IDENTIFIER", "message_board")
+MINOR_IDENTIFIER = os.get_env("VERSION", "alpha")
+INFO_ROOT = info_root(MAJOR_IDENTIFIER, MINOR_IDENTIFIER)
+DOTENV = get_dotenv_identifier(INFO_ROOT)
+
+load_dotenv(DOTENV)
 
 class Config:
     """Base configuration class. Contains common settings."""
