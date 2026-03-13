@@ -2,7 +2,7 @@
 # Ensure the server is running before executing this.
 # You'll need to create users using 'manage_db.py' first.
 import os
-import time
+import asyncio
 import logging
 import subprocess
 import shutil
@@ -58,7 +58,7 @@ def schedule_shutdown() -> str:
     return result
 
 
-def main():
+async def main():
     username = os.environ.get("BOARD_USERNAME")
     password = os.environ.get("BOARD_PASSWORD")
     base_url = os.environ.get("BOARD_BASE_URL", "http://127.0.0.1:5000")
@@ -70,31 +70,32 @@ def main():
     client = MessageBoardClient(base_url=base_url)
     logger.info("Automated Message Board Monitor start")
 
-    while True:
-        try:
-            if not client.token:
-                success, _ = client.login(username, password)
-                if not success:
-                    logger.error("Failed to login to monitor.")
-                    time.sleep(60)
-                    continue
+    try:
+        while True:
+            try:
+                if not client.token:
+                    success, _ = await client.login(username, password)
+                    if not success:
+                        logger.error("Failed to login to monitor.")
+                        await asyncio.sleep(60) # Non-blocking sleep
+                        continue
 
-            private_messages = client.get_private_messages()
-            if isinstance(private_messages, list):
-                for a_message in private_messages:
-                    sender = a_message.get('sender_username', '')
-                    content = a_message.get('content', '')
-                    if sender == 'daniel' and content == 'shutdown':
-                        logger.warning("Shutdown command received!")
-                        schedule_shutdown()
-                        # Optional: delete the message here so it doesn't loop
+                private_messages = await client.get_private_messages()
+                if isinstance(private_messages, list):
+                    for a_message in private_messages:
+                        sender = a_message.get('sender_username', '')
+                        content = a_message.get('content', '')
+                        if sender == 'daniel' and content == 'shutdown':
+                            logger.warning("Shutdown command received!")
+                            schedule_shutdown()
 
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+            except Exception as e:
+                logger.error(f"An unexpected error occurred: {e}")
 
-        # Wait 60 seconds before checking again
-        time.sleep(60)
+            # Yield control back to the event loop for 60 seconds
+            await asyncio.sleep(60)
+    finally:
+        await client.aclose() # Ensure the client session closes properly
 
 if __name__ == "__main__":
-    main()
-
+    asyncio.run(main())
